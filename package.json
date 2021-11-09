@@ -1,0 +1,38 @@
+{
+  "name": "@solvencino/runk",
+  "version": "1.0.0",
+  "description": "runk is a simple file and folder sharer.",
+  "main": "index.js",
+  "bin": {
+    "runk": "index.js"
+  },
+  "scripts": {
+    "start": "nodemon .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "file share",
+    "folder share",
+    "runk",
+    "hyperswarm"
+  ],
+  "author": "solvencino",
+  "license": "MIT",
+  "dependencies": {
+    "@hyperswarm/dht": "^5.0.7",
+    "bind-easy": "^1.0.2",
+    "commander": "^8.3.0",
+    "express": "^4.17.1",
+    "ip": "^1.1.5",
+    "pug": "^3.0.2",
+    "pump": "^3.0.0",
+    "tar-fs": "^2.1.1",
+    "urlencode": "^1.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.14"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

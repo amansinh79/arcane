@@ -1,0 +1,19 @@
+html
+  head
+    title= title
+    style
+      include style.css
+  body
+    h1= title 
+      h2= `dir : ${path}`
+  ul
+   
+    for val in files
+        li
+            if val.isDir
+                    a(href=`/${val.path}`)= `📁 ${val.name}` 
+                    a(href=`/download/${val.path}`)
+                        img(src="tar.png")
+            else 
+                a(href=`/download/${val.path}`)= val.name
+        
