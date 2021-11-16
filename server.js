@@ -1,12 +1,14 @@
 const express = require("express");
-var urlencode = require("urlencode");
+const urlencode = require("urlencode");
 const fs = require("fs");
 const tar = require("tar-fs");
 const p = require("path");
 const DHT = require("@hyperswarm/dht");
 const pump = require("pump");
 const net = require("net");
-var ip = require("ip");
+const ip = require("ip");
+const prettyFileIcons = require("pretty-file-icons");
+const { basename } = require("path");
 
 const path = process.cwd();
 const node = new DHT();
@@ -78,6 +80,7 @@ app.get("/:path?", (req, res) => {
       path: urlencode(
         req.params.path ? p.join(req.params.path, f.name) : f.name
       ),
+      icon: f.isDirectory() ? null : prettyFileIcons.getIcon(f.name, "svg"),
     })),
   });
 });

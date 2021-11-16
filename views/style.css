@@ -3,16 +3,12 @@ body {
 }
 p {
   display: inline-block;
-  margin-left: 10px;
+  margin-left: 5px;
 }
 
 a {
   margin-left: 10px;
   display: inline-block;
-}
-
-li {
-  margin-top: 15px;
 }
 
 img {
