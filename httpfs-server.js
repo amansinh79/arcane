@@ -1,6 +1,6 @@
 const fs = require("fs")
 const path = require("path")
-const BufferSerializer = require("buffer-serializer")
+const { deserialize, serialize } = require("v8")
 
 const argCount = {
   getattr: 0,
@@ -162,8 +162,6 @@ const dirAttributes = {
   uid: uid,
   gid: gid,
 }
-
-var serializer = new BufferSerializer()
 
 var exports = (module.exports = {})
 
@@ -351,13 +349,13 @@ exports.serve = function (root, call, cb, debug) {
   }
   let cargs
   let wrap = (...args) => {
-    cb(serializer.toBuffer(args))
+    cb(serialize(args))
   }
   if (!root) {
     return wrap(unixCodes.ENOENT)
   }
   try {
-    call = serializer.fromBuffer(call)
+    call = deserialize(call)
   } catch (ex) {
     return wrap(unixCodes.ENOENT)
   }

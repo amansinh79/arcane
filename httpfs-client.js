@@ -2,12 +2,10 @@ const url = require("url")
 const matcher = require("matcher")
 const Fuse = require("fuse-native")
 const Agent = require("agentkeepalive")
-const BufferSerializer = require("buffer-serializer")
-
+const { deserialize, serialize } = require("v8")
 exports.mount = function (endpoint, mountpoint, options, callback) {
   endpoint = url.parse(endpoint)
 
-  let serializer = new BufferSerializer()
   let calls = []
   let running = true
   let blocksize = options.blocksize || 1024 * 1024
@@ -43,7 +41,7 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
   }
 
   function sendRequest(call, retries) {
-    let buffer = serializer.toBuffer({ operation: call.operation, args: call.args })
+    let buffer = serialize({ operation: call.operation, args: call.args })
     let httpOptions = {
       method: "POST",
       protocol: endpoint.protocol,
@@ -88,7 +86,7 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
         }
         let result
         try {
-          result = serializer.fromBuffer(Buffer.concat(chunks))
+          result = deserialize(Buffer.concat(chunks))
         } catch (ex) {
           logDebug("Problem parsing response buffer")
           return handleError(-70)
@@ -340,7 +338,7 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     mkdir: (p, mode, cb) => logAndPerformP("mkdir", cb, p, mode),
     rmdir: (p, cb) => logAndPerformI("rmdir", cb, p),
   }
-  const fuse = new Fuse(mountpoint, ops, {})
+  const fuse = new Fuse(mountpoint, ops, { force: true })
   fuse.mount((err) => {
     if (err) {
       console.error("problem mounting", endpoint.href, "to", mountpoint, err)

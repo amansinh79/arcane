@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { program } = require("commander")
-
+const { readFileSync } = require("fs")
 program
   .name("runk")
   .option("-p, --port <port>", "port to run on [optional]")
@@ -10,6 +10,7 @@ program
   .option("-a, --address <addr>", "local address for mount")
   .option("-l, --local ", "don't use hyperswarm, to share on local devices")
   .option("-w, --allowWrite", "when using mount allow client all permissions. default READ-ONLY")
+  .option("-v, --version", "print version")
   .addHelpText(
     "before",
     `
@@ -29,6 +30,11 @@ Example Usage (Mount):
   .parse(process.argv)
 
 const opts = program.opts()
+
+if (opts.version) {
+  console.log("Runk", require("./package.json").version)
+  return
+}
 
 if (opts.key || opts.mount) {
   require("./client")(opts)
