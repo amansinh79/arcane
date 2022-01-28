@@ -1,6 +1,6 @@
 {
   "name": "@solvencino/runk",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "runk is a simple file and folder sharer.",
   "main": "index.js",
   "bin": {
@@ -21,6 +21,7 @@
   "dependencies": {
     "@hyperswarm/dht": "^5.0.7",
     "bind-easy": "^1.0.2",
+    "buffer-serializer": "^1.1.0",
     "commander": "^8.3.0",
     "express": "^4.17.1",
     "ip": "^1.1.5",
@@ -28,7 +29,10 @@
     "pug": "^3.0.2",
     "pump": "^3.0.0",
     "tar-fs": "^2.1.1",
-    "urlencode": "^1.1.0"
+    "urlencode": "^1.1.0",
+    "agentkeepalive": "^4.2.0",
+    "fuse-native": "^2.2.6",
+    "matcher": "^4.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.14"
@@ -42,7 +46,8 @@
       "views/**/*",
       "public/**/*",
       "./node_modules/sodium-native/prebuilds/linux-x64/*",
-      "./node_modules/utp-native/prebuilds/linux-x64/*"
+      "./node_modules/utp-native/prebuilds/linux-x64/*",
+      "./node_modules/fuse-native/prebuilds/linux-x64/*"
     ],
     "targets": [
       "node16-linux-x64"
