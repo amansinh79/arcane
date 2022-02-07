@@ -12,6 +12,7 @@ const httpfs_srv = require("./httpfs-server")
 const path = process.cwd()
 const node = new DHT()
 const app = express()
+const contentDisposition = require("content-disposition")
 
 let root
 
@@ -50,7 +51,12 @@ app.get("/download/:path", async (req, res) => {
       })
     } else {
       stream = fs.createReadStream(filePath)
-      res.setHeader("Content-Disposition", `inline; filename=${basename}`)
+      res.setHeader(
+        "Content-Disposition",
+        contentDisposition(basename, {
+          type: "inline",
+        })
+      )
       res.setHeader("Content-Length", stat.size)
       res.contentType(basename)
     }

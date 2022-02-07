@@ -1,28 +1,25 @@
-const pump = require("pump")
-const bind = require("bind-easy")
-const DHT = require("@hyperswarm/dht")
+const ipc = require('node-ipc').default
 
-const node = new DHT()
+ipc.config.id = 'runk-client'
+ipc.config.silent = true
 
-module.exports = function ({ key, port = 8080, mount, address }) {
-  if (key) {
-    key = Buffer.from(key, "hex")
-    bind.tcp(port).then((server) => {
-      server.on("connection", (socket) => {
-        pump(socket, node.connect(key), socket)
-      })
-      console.log(`Listening on port ${port}\n`)
-      console.log(`http://localhost:${port}`)
-    })
-  }
-
-  if (mount) {
-    require("./httpfs-client").mount(key ? `http://localhost:${port}/httpfs` : address, mount, {}, (err, unmount) => {
-      if (err) {
-        throw err
+module.exports = function ({ sc, path }) {
+  ipc.connectTo('runk', function () {
+    ipc.of.runk.on('connect', function () {
+      if (sc === 'ls') ipc.of.runk.emit('ls', path || '/')
+      if (sc === 'exit') {
+        ipc.of.runk.emit('exit')
+        console.log('Daemon exited successfully')
+        process.exit()
       }
-      process.on("SIGINT", unmount)
-      process.on("SIGTERM", unmount)
     })
-  }
+    ipc.of.runk.on('error', () => {
+      console.log('cannot connect to daemon, check if it is running')
+      process.exit()
+    })
+    ipc.of.runk.on('ls', function (data) {
+      console.log('got a message from runk ls: ', data)
+      process.exit()
+    })
+  })
 }

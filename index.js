@@ -1,43 +1,68 @@
 #!/usr/bin/env node
 
-const { program } = require("commander")
-const { readFileSync } = require("fs")
-program
-  .name("runk")
-  .option("-p, --port <port>", "port to run on [optional]")
-  .option("-k, --key <key>", "dht key [required on clinet]")
-  .option("-m, --mount <path>", "mount path for fuse")
-  .option("-a, --address <addr>", "local address for mount")
-  .option("-l, --local ", "don't use hyperswarm, to share on local devices")
-  .option("-w, --allowWrite", "when using mount allow client all permissions. default READ-ONLY")
-  .option("-v, --version", "print version")
-  .addHelpText(
-    "before",
-    `
-runk is a simple file and folder sharer using hyperswarm.
+const cp = require('child_process')
+const { createWriteStream } = require('fs')
+const minimist = require('minimist')
 
-Example Usage:
-  Server :
-      runk -p 8080
-  Client :
-      runk -p 3000 -k <key>
+const args = process.argv.splice(2)
 
-Example Usage (Mount):
-    Client :
-      runk -k <key> -m /home/dir/ 
-  `
-  )
-  .parse(process.argv)
+const opts = minimist(args)
 
-const opts = program.opts()
+if (opts.h || opts.help) {
+  console.log(` runk is a simple file and folder sharer using hyperswarm.
 
-if (opts.version) {
-  console.log("Runk", require("./package.json").version)
-  return
-}
+   Example Usage:
+     Server :
+         runk -p 8080
+     Client :
+         runk -p 3000 -k <key>
+  
+   Example Usage (Mount):
+       Client :
+         runk -k <key> -m /home/dir/
 
-if (opts.key || opts.mount) {
-  require("./client")(opts)
+
+   Options:
+      -p, --port <port>     port to run on [optional]
+      -k, --key <key>       dht key [required on clinet]
+      -m, --mount <path>    mount path for fuse
+      -a, --address <addr>  local address for mount
+      -l, --local           don't use hyperswarm, to share on local devices
+      -w, --allowWrite      when using mount allow client all permissions. default READ-ONLY
+      -v, --version         print version
+      -h, --help            display help for command
+       
+    Commands:
+      ls <path>             print current directory
+      ls exit               stop daemon
+  `)
+} else if (opts.v || opts.version) {
+  console.log('Runk', require('./package.json').version)
+} else if (opts._[0]) {
+  const sc = opts._[0]
+  const path = opts._[1]
+  require('./client')({ sc, path })
 } else {
-  require("./server")(opts)
+  opts.port = opts.p || opts.port
+  opts.key = opts.k || opts.key
+  opts.mount = opts.m || opts.mount
+  opts.address = opts.a || opts.address
+  opts.local = opts.l || opts.local
+  opts.allowWrite = opts.w || opts.allowWrite
+
+  if (opts.key || opts.mount) {
+    console.log('Starting client Daemon\n')
+    const p = cp.spawn('node', ['client-daemon.js', ...args], {
+      detached: true,
+      stdio: ['ignore', 'ignore', 'inherit', 'ipc'],
+    })
+    p.on('message', (m) => {
+      console.log(m)
+    })
+    p.on('disconnect', () => {
+      process.exit()
+    })
+  } else {
+    require('./server')(opts)
+  }
 }

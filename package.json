@@ -1,6 +1,6 @@
 {
   "name": "@solvencino/runk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "runk is a simple file and folder sharer.",
   "main": "index.js",
   "bin": {
@@ -20,19 +20,22 @@
   "license": "MIT",
   "dependencies": {
     "@hyperswarm/dht": "^5.0.7",
+    "@solvencino/fs-stream": "^1.0.3",
+    "agentkeepalive": "^4.2.0",
     "bind-easy": "^1.0.2",
-    "buffer-serializer": "^1.1.0",
     "commander": "^8.3.0",
+    "content-disposition": "^0.5.4",
     "express": "^4.17.1",
+    "fuse-native": "^2.2.6",
     "ip": "^1.1.5",
+    "matcher": "^4.0.0",
+    "minimist": "^1.2.5",
+    "node-ipc": "^10.1.0",
     "pretty-file-icons": "^2.2.1",
     "pug": "^3.0.2",
     "pump": "^3.0.0",
     "tar-fs": "^2.1.1",
-    "urlencode": "^1.1.0",
-    "agentkeepalive": "^4.2.0",
-    "fuse-native": "^2.2.6",
-    "matcher": "^4.0.0"
+    "urlencode": "^1.1.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.14"
