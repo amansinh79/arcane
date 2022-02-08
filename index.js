@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const cp = require('child_process')
-const { createWriteStream } = require('fs')
 const minimist = require('minimist')
+const { COMMANDS } = require('./constants')
 
 const args = process.argv.splice(2)
 
@@ -33,14 +33,20 @@ if (opts.h || opts.help) {
       -h, --help            display help for command
        
     Commands:
-      ls <path>             print current directory
-      ls exit               stop daemon
+      status                                print status of daemon
+      ls <path>                             print current directory
+      cp <path> --fs <file system path>     copy directory 
+      exit                                  stop daemon
   `)
 } else if (opts.v || opts.version) {
   console.log('Runk', require('./package.json').version)
 } else if (opts._[0]) {
   const sc = opts._[0]
   const path = opts._[1]
+  if (!COMMANDS.includes(sc)) {
+    console.log('Invalid Command!', 'runk --help for help')
+    process.exit()
+  }
   require('./client')({ sc, path })
 } else {
   opts.port = opts.p || opts.port
@@ -52,15 +58,15 @@ if (opts.h || opts.help) {
 
   if (opts.key || opts.mount) {
     console.log('Starting client Daemon\n')
-    const p = cp.spawn('node', ['client-daemon.js', ...args], {
+    const p = cp.fork('client-daemon.js', args, {
       detached: true,
-      stdio: ['ignore', 'ignore', 'inherit', 'ipc'],
     })
     p.on('message', (m) => {
+      if (m === 'done') {
+        p.unref()
+        process.exit()
+      }
       console.log(m)
-    })
-    p.on('disconnect', () => {
-      process.exit()
     })
   } else {
     require('./server')(opts)
