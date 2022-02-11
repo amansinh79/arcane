@@ -6,6 +6,8 @@ It uses [tar-fs](https://www.npmjs.com/package/tar-fs) to pack direcotries and [
 
 ## Usage:
 
+runk is a simple file and folder sharer using hyperswarm.
+
 ### Server :
 
 runk -p 8080
@@ -14,15 +16,38 @@ runk -p 8080
 
 runk -p 3000 -k <key>
 
-## Options:
+### Mount:
 
--p, --port : port to run on [optional]
+Client :
+runk -k <key> -m /home/dir/
 
--k, --key : dht key [required on clinet]
+### Options:
 
--l, --local : don't use hyperswarm, to share on local devices
+-p, --port <port> port to run on [optional]
 
--h, --help : display help for command
+-k, --key <key> dht key [required on clinet]
+
+-m, --mount <path> mount path for fuse
+
+-a, --address <addr> local address for mount
+
+-l, --local don't use hyperswarm, to share on local devices
+
+-w, --allowWrite when using mount allow client all permissions. default READ-ONLY
+
+-v, --version print version
+
+-h, --help display help for command
+
+### SubCommands:
+
+status print status of daemon
+
+ls <path> print current directory
+
+cp <path> <file system path> copy directory
+
+exit stop daemon
 
 ## License:
 

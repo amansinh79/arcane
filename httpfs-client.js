@@ -346,6 +346,7 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     } else {
       callback(err, () =>
         Fuse.unmount(mountpoint, () => {
+          console.log('Unmounted', mountpoint)
           process.exit(0)
         })
       )
