@@ -25,6 +25,13 @@ runk is a simple file and folder sharer using hyperswarm.
   Example Usage (Mount):
        Client :
          runk -k <key> -m /home/dir/
+
+  Example Usage (Repl):
+       Client :
+         runk -k <key> -r
+
+Note : You need to provide either key or address on client
+
   
   Options:
       -p, --port <port>     port to run on [optional]
@@ -37,11 +44,13 @@ runk is a simple file and folder sharer using hyperswarm.
       -v, --version         print version
       -h, --help            display help for command
        
-  SubCommands:
-      status                                print status of daemon
-      ls <path>                             print current directory
-      cp <path> <file system path>          copy directory 
-      exit                                  stop daemon
+  Repl Commands:
+      .status                                print status
+      .ls                                    print contents of current directory 
+      .cd <path>                             chagne directory
+      .cp <path> <file system path>          copy files and directory 
+      .cat <filename>                        print contents of file
+      .exit                                  exit repl
   `)
 } else if (opts.v || opts.version) {
   console.log('Runk', require('./package.json').version)

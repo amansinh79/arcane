@@ -13,6 +13,7 @@ const path = process.cwd()
 const node = new DHT()
 const app = express()
 const contentDisposition = require('content-disposition')
+const { send } = require('@solvencino/fs-stream')
 
 let root
 
@@ -31,7 +32,8 @@ app.get('/download/:path', async (req, res) => {
   const stat = fs.statSync(filePath)
 
   if (req.query.raw && stat.isDirectory()) {
-    return res.status(400).end()
+    res.setHeader('X-isDir', true)
+    return send(filePath).pipe(res)
   }
 
   if (stat.isDirectory()) {

@@ -4,10 +4,12 @@ const DHT = require('@hyperswarm/dht')
 const net = require('net')
 const node = new DHT()
 const { start } = require('repl')
-const path = require('path')
 const { default: axios } = require('axios')
 const chalk = require('chalk')
 const urlencode = require('urlencode')
+const { createWriteStream, existsSync } = require('fs')
+const { extname, join, basename, sep, resolve } = require('path')
+const { receive } = require('@solvencino/fs-stream')
 
 module.exports = async function ({ key, mount, repl, port = 8080, address }) {
   if (key) {
@@ -33,10 +35,8 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
       console.log('Mounted at ' + mount)
       process.on('SIGINT', unmount)
     })
-  }
-
-  if (repl) {
-    let pwd = path.sep
+  } else if (repl) {
+    let pwd = sep
     const client = axios.create({
       baseURL: key ? `http://localhost:${port}` : `http://${address}`,
       params: {
@@ -46,7 +46,7 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
     })
 
     const replServer = start({
-      prompt: `Runk : ${path.sep} > `,
+      prompt: chalk.bold.blueBright(`Runk : ${sep} > `),
     })
 
     replServer.on('exit', () => {
@@ -54,7 +54,7 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
     })
 
     replServer.defineCommand('ls', async (cmd) => {
-      const res = await client.get('/' + urlencode(path.join(pwd, cmd)))
+      const res = await client.get('/' + urlencode(join(pwd, cmd)))
 
       if (res.status === 200) {
         const files = res.data
@@ -70,14 +70,14 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
     })
 
     replServer.defineCommand('cd', async (text) => {
-      const res = await client.get('/' + urlencode(path.join(pwd, text)), {
+      const res = await client.get('/' + urlencode(join(pwd, text)), {
         params: {
           check: true,
         },
       })
       if (res.status === 200) {
-        pwd = path.join(pwd, text)
-        replServer.setPrompt(`Runk : ${pwd} > `)
+        pwd = join(pwd, text)
+        replServer.setPrompt(chalk.bold.blueBright(`Runk : ${pwd} > `))
       } else {
         console.log('Invalid Path!')
       }
@@ -90,7 +90,7 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
     })
 
     replServer.defineCommand('cat', async (text) => {
-      const res = await client.get('/download/' + urlencode(path.join(pwd, text)), {
+      const res = await client.get('/download/' + urlencode(join(pwd, text)), {
         responseType: 'stream',
         params: {
           raw: true,
@@ -106,14 +106,50 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
       }
     })
 
+    replServer.defineCommand('cp', async (cmd) => {
+      let [src, dest] = cmd.split(' ')
+      dest = resolve(dest)
+      if (!existsSync(dest)) {
+        console.log('Invalid Destination!')
+        replServer.displayPrompt()
+        return
+      }
+      const res = await client.get('/download/' + urlencode(join(pwd, src)), {
+        responseType: 'stream',
+      })
+      if (res.status === 200) {
+        res.data.on('end', () => {
+          replServer.displayPrompt()
+        })
+        if (res.headers['x-isdir']) {
+          pump(res.data, receive(dest))
+        } else {
+          if (!extname(dest)) {
+            dest = join(dest, basename(src))
+          }
+          pump(res.data, createWriteStream(dest))
+        }
+      } else {
+        console.log('Invalid source!')
+        replServer.displayPrompt()
+      }
+    })
+
+    replServer.defineCommand('status', () => {
+      console.log(`Connected to ${key ? `${key}\nListening on http://localhost:${port}` : `http://${address}`}`)
+
+      replServer.displayPrompt()
+    })
+
     replServer.defineCommand('help', () => {
       console.log(
-        `status                                print status
-ls                                    print contents of current directory 
-cd                                    chagne directory
-cp <path> <file system path>          copy files and directory 
-cat <filename>                        print contents of file
-exit                                  stop repl`
+        `.status                                print status
+.ls                                    print contents of current directory 
+.cd <path>                             chagne directory
+.cp <path> <file system path>          copy files and directory 
+.cat <filename>                        print contents of file
+.help                                  print help
+.exit                                  exit repl`
       )
 
       replServer.displayPrompt()
