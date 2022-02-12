@@ -13,7 +13,7 @@ It uses [hyperswarm](https://www.npmjs.com/package/@hyperswarm/dht) for sharing 
 
 ### Install
 
-`npm i @solvencino/runk`
+`npm i -g @solvencino/runk`
 
 or (without installation)
 
