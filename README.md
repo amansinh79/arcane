@@ -77,6 +77,7 @@ Repl Commands:
 ## ToDo:
 
 - handle more sophisticated commands in repl
+- add completer in repl
 
 ## Limits:
 

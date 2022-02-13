@@ -8,7 +8,7 @@ const { default: axios } = require('axios')
 const chalk = require('chalk')
 const urlencode = require('urlencode')
 const { createWriteStream, existsSync } = require('fs')
-const { extname, join, basename, sep, resolve } = require('path')
+const { extname, join, basename, sep, resolve, dirname } = require('path')
 const { receive } = require('@solvencino/fs-stream')
 
 module.exports = async function ({ key, mount, repl, port = 8080, address }) {
@@ -47,6 +47,8 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
 
     const replServer = start({
       prompt: chalk.bold.blueBright(`Runk : ${sep} > `),
+      breakEvalOnSigint: true,
+      terminal: true,
     })
 
     replServer.on('exit', () => {
@@ -61,7 +63,7 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
           .map((entry) => {
             return entry.isDir ? chalk.bold.blueBright(entry.name) : entry.name
           })
-          .join(' ')
+          .join('\n')
         console.log(files)
       } else {
         console.log('Invalid Path')
@@ -96,11 +98,14 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
           raw: true,
         },
       })
-      res.data.on('end', () => {
-        replServer.displayPrompt()
-      })
-      if (res.status === 200) pump(res.data, process.stdout)
-      else {
+
+      if (res.status === 200) {
+        res.data.on('end', () => {
+          process.stdout.write('\n')
+          replServer.displayPrompt(true)
+        })
+        pump(res.data, process.stdout)
+      } else {
         console.log('File not found!')
         replServer.displayPrompt()
       }
@@ -109,7 +114,7 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
     replServer.defineCommand('cp', async (cmd) => {
       let [src, dest] = cmd.split(' ')
       dest = resolve(dest)
-      if (!existsSync(dest)) {
+      if (!existsSync(dirname(dest))) {
         console.log('Invalid Destination!')
         replServer.displayPrompt()
         return
