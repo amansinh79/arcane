@@ -1,6 +1,6 @@
-const fs = require("fs")
-const path = require("path")
-const { deserialize, serialize } = require("v8")
+const fs = require('fs')
+const path = require('path')
+const { deserialize, serialize } = require('v8')
 
 const argCount = {
   getattr: 0,
@@ -18,7 +18,7 @@ const argCount = {
   link: 1,
   symlink: 1,
   mkdir: 1,
-  rmdir: 0,
+  rmdir: 0
 }
 
 const unixCodes = {
@@ -145,13 +145,13 @@ const unixCodes = {
   EREMOTEIO: -121,
   EDQUOT: -122,
   ENOMEDIUM: -123,
-  EMEDIUMTYPE: -124,
+  EMEDIUMTYPE: -124
 }
 
 const uid = process.getuid ? process.getuid() : 0
 const gid = process.getgid ? process.getgid() : 0
 const stdDate = new Date()
-const selfReadWriteMask = parseInt("600", 8)
+const selfReadWriteMask = parseInt('600', 8)
 const dirAttributes = {
   mtime: stdDate,
   atime: stdDate,
@@ -160,14 +160,14 @@ const dirAttributes = {
   size: 100,
   mode: 16877,
   uid: uid,
-  gid: gid,
+  gid: gid
 }
 
-var exports = (module.exports = {})
+const exports = (module.exports = {})
 
 exports.real = function (basePath) {
-  let getRealPath = (pathItems, cb, cont) => {
-    let newPath = path.resolve(basePath, path.join(basePath, ...pathItems))
+  const getRealPath = (pathItems, cb, cont) => {
+    const newPath = path.resolve(basePath, path.join(basePath, ...pathItems))
     if (newPath.startsWith(basePath)) {
       cont(newPath)
     } else {
@@ -182,15 +182,15 @@ exports.real = function (basePath) {
           err
             ? cb(err.errno || unixCodes.ENOENT)
             : cb(0, {
-                mtime: stats.mtime,
-                atime: stats.atime,
-                ctime: stats.ctime,
-                nlink: stats.nlink,
-                size: stats.size,
-                mode: stats.mode,
-                uid: uid,
-                gid: gid,
-              })
+              mtime: stats.mtime,
+              atime: stats.atime,
+              ctime: stats.ctime,
+              nlink: stats.nlink,
+              size: stats.size,
+              mode: stats.mode,
+              uid: uid,
+              gid: gid
+            })
         )
       ),
     readdir: (pathItems, cb) =>
@@ -205,8 +205,8 @@ exports.real = function (basePath) {
       getRealPath(pathItems, cb, (realPath) => fs.chmod(realPath, mode, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
     read: (pathItems, offset, length, cb) =>
       getRealPath(pathItems, cb, (realPath) => {
-        let buffer = Buffer.alloc(length)
-        fs.open(realPath, "r", (err, fd) => {
+        const buffer = Buffer.alloc(length)
+        fs.open(realPath, 'r', (err, fd) => {
           if (err) {
             cb(err.errno || unixCodes.ENOENT)
           } else {
@@ -222,7 +222,7 @@ exports.real = function (basePath) {
       }),
     write: (pathItems, buffer, offset, cb) =>
       getRealPath(pathItems, cb, (realPath) => {
-        fs.open(realPath, "a", (err, fd) => {
+        fs.open(realPath, 'a', (err, fd) => {
           if (err) {
             cb(err.errno || unixCodes.ENOENT)
           } else {
@@ -238,7 +238,7 @@ exports.real = function (basePath) {
       }),
     create: (pathItems, mode, cb) =>
       getRealPath(pathItems, cb, (realPath) =>
-        fs.open(realPath, "w", mode | selfReadWriteMask, (err, fd) => {
+        fs.open(realPath, 'w', mode | selfReadWriteMask, (err, fd) => {
           if (err) {
             cb(err.errno || unixCodes.ENOENT)
           } else {
@@ -259,7 +259,7 @@ exports.real = function (basePath) {
       getRealPath(pathItems, cb, (realPath) => fs.symlink(dest, realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
     mkdir: (pathItems, mode, cb) =>
       getRealPath(pathItems, cb, (realPath) => fs.mkdir(realPath, mode, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
-    rmdir: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.rmdir(realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    rmdir: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.rmdir(realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0)))
   }
 }
 
@@ -275,7 +275,7 @@ exports.readOnly = function (other) {
         }
       }),
     readdir: other.readdir,
-    read: other.read,
+    read: other.read
   }
 }
 
@@ -290,41 +290,41 @@ exports.vFile = function (buffer) {
         size: buffer.length,
         mode: 33188,
         uid: uid,
-        gid: gid,
+        gid: gid
       }),
     read: (pathItems, offset, length, cb) => {
-      let nb = buffer.slice(offset, offset + length)
+      const nb = buffer.slice(offset, offset + length)
       cb(nb.length, nb)
-    },
+    }
   }
 }
 
 exports.vDir = function (entries, entry) {
-  let dirOperations = {
+  const dirOperations = {
     getattr: (pathItems, cb) => cb(0, dirAttributes),
-    readdir: (pathItems, cb) => cb(0, typeof entries === "function" ? entries() : Object.keys(entries)),
+    readdir: (pathItems, cb) => cb(0, typeof entries === 'function' ? entries() : Object.keys(entries))
   }
   return new Proxy(
     {},
     {
       get: (target, operation, receiver) =>
         function () {
-          let args = Array.from(arguments)
-          let pathItems = args[0]
-          let cb = args[args.length - 1]
-          if (!cb || typeof cb !== "function") {
+          const args = Array.from(arguments)
+          const pathItems = args[0]
+          const cb = args[args.length - 1]
+          if (!cb || typeof cb !== 'function') {
             return
           }
           let operations = dirOperations
           if (pathItems.length > 0) {
-            let item = pathItems.shift()
-            operations = typeof entry === "function" ? entry(item) : entries[item]
-            if (typeof operations === "function") {
+            const item = pathItems.shift()
+            operations = typeof entry === 'function' ? entry(item) : entries[item]
+            if (typeof operations === 'function') {
               operations = operations()
             }
           }
           if (operations) {
-            let operationFunction = operations[operation]
+            const operationFunction = operations[operation]
             if (operationFunction) {
               operationFunction(...args)
             } else {
@@ -333,22 +333,22 @@ exports.vDir = function (entries, entry) {
           } else {
             cb(unixCodes.EACCES)
           }
-        },
+        }
     }
   )
 }
 
-let isBuffer = (obj) => obj != null && obj.constructor != null && obj.constructor.isBuffer
+const isBuffer = (obj) => obj != null && obj.constructor != null && obj.constructor.isBuffer
 
 exports.serve = function (root, call, cb, debug) {
-  let debugOps = {}
-  if (typeof debug === "string") {
-    for (let op of debug.toLowerCase().split(",")) {
+  const debugOps = {}
+  if (typeof debug === 'string') {
+    for (const op of debug.toLowerCase().split(',')) {
       debugOps[op] = true
     }
   }
   let cargs
-  let wrap = (...args) => {
+  const wrap = (...args) => {
     cb(serialize(args))
   }
   if (!root) {
@@ -360,20 +360,20 @@ exports.serve = function (root, call, cb, debug) {
     return wrap(unixCodes.ENOENT)
   }
   cargs = call.args.filter((obj) => !isBuffer(obj))
-  let operation = root[call.operation]
+  const operation = root[call.operation]
   if (operation) {
     if (call.args.length > 0) {
-      let shiftItems = () =>
+      const shiftItems = () =>
         call.args
           .shift()
-          .split("/")
+          .split('/')
           .filter((v) => v.length > 0)
-      let pathItems = shiftItems()
+      const pathItems = shiftItems()
       if (call.args.length === argCount[call.operation]) {
-        if (call.operation === "rename") {
+        if (call.operation === 'rename') {
           if (call.args.length > 0) {
-            let destItems = shiftItems()
-            let destpath = root["destpath"]
+            const destItems = shiftItems()
+            const destpath = root.destpath
             if (destpath) {
               destpath(destItems, (code, destPath) => {
                 if (code == 0) {

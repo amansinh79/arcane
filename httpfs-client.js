@@ -6,10 +6,10 @@ const { deserialize, serialize } = require('v8')
 exports.mount = function (endpoint, mountpoint, options, callback) {
   endpoint = url.parse(endpoint)
 
-  let calls = []
-  let running = true
-  let blocksize = options.blocksize || 1024 * 1024
-  let timeout = options.timeout || 60 * 60
+  const calls = []
+  const running = true
+  const blocksize = options.blocksize || 1024 * 1024
+  const timeout = options.timeout || 60 * 60
 
   let attrcache
   if (options.attrcache) {
@@ -31,18 +31,18 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     agent = new Agent()
   }
 
-  function logDebug() {}
+  function logDebug () {}
 
-  function removeCall(call) {
-    let index = calls.indexOf(call)
+  function removeCall (call) {
+    const index = calls.indexOf(call)
     if (index >= 0) {
       calls.splice(index, 1)
     }
   }
 
-  function sendRequest(call, retries) {
-    let buffer = serialize({ operation: call.operation, args: call.args })
-    let httpOptions = {
+  function sendRequest (call, retries) {
+    const buffer = serialize({ operation: call.operation, args: call.args })
+    const httpOptions = {
       method: 'POST',
       protocol: endpoint.protocol,
       hostname: endpoint.hostname,
@@ -51,18 +51,18 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
       agent: agent,
       headers: {
         'Content-Type': 'application/octet-stream',
-        'Content-Length': buffer.length,
-      },
+        'Content-Length': buffer.length
+      }
     }
     if (options.headers) {
-      for (let header of Object.keys(options.headers)) {
+      for (const header of Object.keys(options.headers)) {
         httpOptions.headers[header] = options.headers[header]
       }
     }
     if (endpoint.protocol == 'https:' && options.certificate) {
       httpOptions.ca = [options.certificate]
     }
-    let handleError = (errno) => {
+    const handleError = (errno) => {
       if (retries > 0) {
         delete call.request
         call.timer = setTimeout(() => {
@@ -77,7 +77,7 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
       }
     }
     call.request = http.request(httpOptions, (res) => {
-      let chunks = []
+      const chunks = []
       res.on('data', (chunk) => chunks.push(chunk))
       res.on('end', () => {
         if (res.statusCode != 200) {
@@ -102,9 +102,9 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     call.request.end(buffer)
   }
 
-  function performP(operation, callback, p, ...args) {
+  function performP (operation, callback, p, ...args) {
     if (running) {
-      let call = { operation: operation, callback: callback, args: [p, ...args] }
+      const call = { operation: operation, callback: callback, args: [p, ...args] }
       calls.push(call)
       logDebug('sending', operation, p)
       sendRequest(call, timeout)
@@ -113,26 +113,26 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     }
   }
 
-  function performI(operation, callback, p, ...args) {
+  function performI (operation, callback, p, ...args) {
     setAttrCache(p)
     performP(operation, callback, p, ...args)
   }
 
-  function logAndPerformP(operation, callback, p, ...args) {
+  function logAndPerformP (operation, callback, p, ...args) {
     // logDebug(operation, p)
     performP(operation, callback, p, ...args)
   }
 
-  function logAndPerformI(operation, callback, p, ...args) {
+  function logAndPerformI (operation, callback, p, ...args) {
     // logDebug(operation, p)
     performI(operation, callback, p, ...args)
   }
 
-  function getAttrCache(p) {
+  function getAttrCache (p) {
     return attrcache && attrcache[p]
   }
 
-  function setAttrCache(p, stat) {
+  function setAttrCache (p, stat) {
     if (attrcache) {
       if (stat) {
         attrcache[p] = stat
@@ -142,10 +142,10 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     }
   }
 
-  function shouldCache(p) {
+  function shouldCache (p) {
     if (cache) {
       if (options.nocache) {
-        for (let pattern of options.nocache) {
+        for (const pattern of options.nocache) {
           if (matcher.isMatch(p, pattern)) {
             logDebug('no caching', options.nocache, p)
             return false
@@ -158,15 +158,15 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     }
   }
 
-  function createDescriptor(p) {
+  function createDescriptor (p) {
     return shouldCache(p) ? createCache(p) : 0
   }
 
-  function isCached(fd) {
+  function isCached (fd) {
     return fd > 0
   }
 
-  function createCache(p) {
+  function createCache (p) {
     for (let i = 1; i <= cache.length + 1; i++) {
       if (!cache[i]) {
         cache[i] = {
@@ -174,23 +174,23 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
           write: {
             off: 0,
             pos: 0,
-            blocks: [],
+            blocks: []
           },
           read: {
             off: 0,
-            block: null,
-          },
+            block: null
+          }
         }
         return i
       }
     }
   }
 
-  function readFromCache(fd, off, len, buf, cb) {
-    let file = cache[fd]
-    let rc = file.read
+  function readFromCache (fd, off, len, buf, cb) {
+    const file = cache[fd]
+    const rc = file.read
     if (rc.block && off >= rc.off && off + len <= rc.off + rc.block.length) {
-      let boff = off - rc.off
+      const boff = off - rc.off
       rc.block.copy(buf, 0, boff, boff + len)
       cb(len)
     } else {
@@ -200,7 +200,7 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
           if (code >= 0 && resultBuffer) {
             rc.off = off
             rc.block = Buffer.from(resultBuffer)
-            let elen = Math.min(len, rc.block.length)
+            const elen = Math.min(len, rc.block.length)
             rc.block.copy(buf, 0, 0, elen)
             cb(elen)
           } else {
@@ -214,13 +214,13 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     }
   }
 
-  function flushCacheFile(file, cb) {
-    let wc = file.write
+  function flushCacheFile (file, cb) {
+    const wc = file.write
     if (wc.blocks.length > 0) {
-      let off = wc.off
+      const off = wc.off
       wc.off = 0
       wc.pos = 0
-      let buf = Buffer.concat(wc.blocks)
+      const buf = Buffer.concat(wc.blocks)
       wc.blocks = []
       performI('write', (len) => (len < 0 ? cb(len) : cb(0)), file.p, buf, off)
     } else {
@@ -228,15 +228,15 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     }
   }
 
-  function flushCacheDescriptor(fd, cb) {
-    let file = cache[fd]
+  function flushCacheDescriptor (fd, cb) {
+    const file = cache[fd]
     flushCacheFile(file, cb)
   }
 
-  function writeToCache(fd, off, buf, cb) {
+  function writeToCache (fd, off, buf, cb) {
     buf = Buffer.from(buf)
-    let file = cache[fd]
-    let wc = file.write
+    const file = cache[fd]
+    const wc = file.write
     if (off == wc.pos && wc.pos - wc.off + buf.length <= blocksize) {
       wc.blocks.push(buf)
       wc.pos += buf.length
@@ -255,8 +255,8 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     }
   }
 
-  function releaseCache(fd, cb) {
-    let file = cache[fd]
+  function releaseCache (fd, cb) {
+    const file = cache[fd]
     delete cache[fd]
     flushCacheFile(file, cb)
   }
@@ -264,7 +264,7 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
   const ops = {
     getattr: (p, cb) => {
       logDebug('getattr', p)
-      let cached = getAttrCache(p)
+      const cached = getAttrCache(p)
       if (cached) {
         cb(cached.code, cached.stat)
       } else {
@@ -280,7 +280,7 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     },
     open: (p, flags, cb) => {
       logDebug('open', p)
-      let fd = createDescriptor(p)
+      const fd = createDescriptor(p)
       cb(0, fd)
     },
     create: (p, mode, cb) => {
@@ -310,7 +310,7 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     },
     write: (p, fd, buf, len, off, cb) => {
       logDebug('write', p)
-      let abuf = buf.length == len ? buf : buf.slice(0, len)
+      const abuf = buf.length == len ? buf : buf.slice(0, len)
       if (isCached(fd)) {
         writeToCache(fd, off, abuf, cb)
       } else {
@@ -336,7 +336,7 @@ exports.mount = function (endpoint, mountpoint, options, callback) {
     link: (dest, p, cb) => logAndPerformP('link', cb, p, dest),
     symlink: (dest, p, cb) => logAndPerformP('symlink', cb, p, dest),
     mkdir: (p, mode, cb) => logAndPerformP('mkdir', cb, p, mode),
-    rmdir: (p, cb) => logAndPerformI('rmdir', cb, p),
+    rmdir: (p, cb) => logAndPerformI('rmdir', cb, p)
   }
   const fuse = new Fuse(mountpoint, ops, { force: true })
   fuse.mount((err) => {

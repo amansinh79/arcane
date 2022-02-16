@@ -1,10 +1,10 @@
 {
-  "name": "@solvencino/runk",
+  "name": "@solvencino/arc",
   "version": "1.0.7",
-  "description": "runk is a simple file and folder sharer.",
+  "description": "arc is a simple file and folder sharer.",
   "main": "index.js",
   "bin": {
-    "runk": "index.js"
+    "arc": "index.js"
   },
   "scripts": {
     "start": "nodemon .",
@@ -13,7 +13,7 @@
   "keywords": [
     "file share",
     "folder share",
-    "runk",
+    "arc",
     "hyperswarm"
   ],
   "author": "solvencino",
@@ -34,7 +34,6 @@
     "pretty-file-icons": "^2.2.1",
     "pug": "^3.0.2",
     "pump": "^3.0.0",
-    "stdout-stream": "^1.4.1",
     "tar-fs": "^2.1.1",
     "urlencode": "^1.1.0"
   },

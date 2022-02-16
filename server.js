@@ -94,7 +94,7 @@ app.get('/:path?', (req, res) => {
     )
   } else {
     res.render('index', {
-      title: 'Runk',
+      title: 'arc',
       back: p.join(),
       path: req.params.path ? '/' + req.params.path : '/',
       files: files.map((f) => ({
@@ -108,7 +108,7 @@ app.get('/:path?', (req, res) => {
 })
 
 app.post('/httpfs', (req, res) => {
-  let chunks = []
+  const chunks = []
   req.on('data', (chunk) => chunks.push(chunk))
   req.on('end', () =>
     httpfs_srv.serve(root, Buffer.concat(chunks), (result) => {

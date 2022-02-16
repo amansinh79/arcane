@@ -46,7 +46,7 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
     })
 
     const replServer = start({
-      prompt: chalk.bold.blueBright(`Runk : ${sep} > `),
+      prompt: chalk.bold.blueBright(`arc : ${sep} > `),
       breakEvalOnSigint: true,
       terminal: true,
     })
@@ -79,7 +79,7 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
       })
       if (res.status === 200) {
         pwd = join(pwd, text)
-        replServer.setPrompt(chalk.bold.blueBright(`Runk : ${pwd} > `))
+        replServer.setPrompt(chalk.bold.blueBright(`arc : ${pwd} > `))
       } else {
         console.log('Invalid Path!')
       }

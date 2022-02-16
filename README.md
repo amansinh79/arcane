@@ -1,4 +1,4 @@
-# runk
+# arcane (arc)
 
 It is a simple file and folder sharer.
 
@@ -13,11 +13,11 @@ It uses [hyperswarm](https://www.npmjs.com/package/@hyperswarm/dht) for sharing 
 
 ### Install
 
-`npm i -g @solvencino/runk`
+`npm i -g @solvencino/arc`
 
 or (without installation)
 
-`npx runk <args>`
+`npx arc <args>`
 
 ## Usage:
 
@@ -31,23 +31,23 @@ You can access shared files using 3 ways.
 
 ### Server :
 
-`runk -p 8080`
+`arc -p 8080`
 
 ### Client :
 
-`runk -p 3000 -k <key>`
+`arc -p 3000 -k <key>`
 
 ## Example Usage (Mount):
 
 ### Client :
 
-`runk -k <key> -m /home/dir/`
+`arc -k <key> -m /home/dir/`
 
 ## Example Usage (Repl):
 
 ### Client :
 
-`runk -k <key> -r`
+`arc -k <key> -r`
 
 `Note : You need to provide either key or address on client`
 

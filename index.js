@@ -14,21 +14,21 @@ if (opts.h || opts.help) {
  |_|   \\__,_|_| |_|_|\\_\\
 
 
-runk is a simple file and folder sharer using hyperswarm.
+arc is a simple file and folder sharer using hyperswarm.
 
   Example Usage:
      Server :
-         runk -p 8080
+         arc -p 8080
      Client :
-         runk -p 3000 -k <key>
+         arc -p 3000 -k <key>
   
   Example Usage (Mount):
        Client :
-         runk -k <key> -m /home/dir/
+         arc -k <key> -m /home/dir/
 
   Example Usage (Repl):
        Client :
-         runk -k <key> -r
+         arc -k <key> -r
 
 Note : You need to provide either key or address on client
 
@@ -53,7 +53,7 @@ Note : You need to provide either key or address on client
       .exit                                  exit repl
   `)
 } else if (opts.v || opts.version) {
-  console.log('Runk', require('./package.json').version)
+  console.log('arc', require('./package.json').version)
 } else {
   opts.port = opts.p || opts.port
   opts.key = opts.k || opts.key
