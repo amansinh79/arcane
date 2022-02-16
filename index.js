@@ -7,11 +7,11 @@ const args = process.argv.splice(2)
 const opts = minimist(args)
 
 if (opts.h || opts.help) {
-  console.log(`                   _    
-  _ __ _   _ _ __ | | __
- | '__| | | | '_ \\| |/ /
- | |  | |_| | | | |   < 
- |_|   \\__,_|_| |_|_|\\_\\
+  console.log(`           
+   __ _ _ __ ___ 
+  / _\` | '__/ __|
+ | (_| | | | (__ 
+  \\__,_|_|  \\___|
 
 
 arc is a simple file and folder sharer using hyperswarm.
