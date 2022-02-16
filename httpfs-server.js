@@ -18,7 +18,7 @@ const argCount = {
   link: 1,
   symlink: 1,
   mkdir: 1,
-  rmdir: 0
+  rmdir: 0,
 }
 
 const unixCodes = {
@@ -145,7 +145,7 @@ const unixCodes = {
   EREMOTEIO: -121,
   EDQUOT: -122,
   ENOMEDIUM: -123,
-  EMEDIUMTYPE: -124
+  EMEDIUMTYPE: -124,
 }
 
 const uid = process.getuid ? process.getuid() : 0
@@ -160,10 +160,10 @@ const dirAttributes = {
   size: 100,
   mode: 16877,
   uid: uid,
-  gid: gid
+  gid: gid,
 }
 
-const exports = (module.exports = {})
+var exports = (module.exports = {})
 
 exports.real = function (basePath) {
   const getRealPath = (pathItems, cb, cont) => {
@@ -182,27 +182,22 @@ exports.real = function (basePath) {
           err
             ? cb(err.errno || unixCodes.ENOENT)
             : cb(0, {
-              mtime: stats.mtime,
-              atime: stats.atime,
-              ctime: stats.ctime,
-              nlink: stats.nlink,
-              size: stats.size,
-              mode: stats.mode,
-              uid: uid,
-              gid: gid
-            })
+                mtime: stats.mtime,
+                atime: stats.atime,
+                ctime: stats.ctime,
+                nlink: stats.nlink,
+                size: stats.size,
+                mode: stats.mode,
+                uid: uid,
+                gid: gid,
+              })
         )
       ),
-    readdir: (pathItems, cb) =>
-      getRealPath(pathItems, cb, (realPath) => fs.readdir(realPath, (err, files) => (err ? cb(err.errno || unixCodes.ENOENT) : cb(0, files)))),
-    truncate: (pathItems, size, cb) =>
-      getRealPath(pathItems, cb, (realPath) => fs.truncate(realPath, size, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
-    readlink: (pathItems, cb) =>
-      getRealPath(pathItems, cb, (realPath) => fs.readlink(realPath, (err, link) => (err ? cb(err.errno || unixCodes.ENOENT) : cb(null, link)))),
-    chown: (pathItems, uid, gid, cb) =>
-      getRealPath(pathItems, cb, (realPath) => fs.chown(realPath, uid, gid, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
-    chmod: (pathItems, mode, cb) =>
-      getRealPath(pathItems, cb, (realPath) => fs.chmod(realPath, mode, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    readdir: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.readdir(realPath, (err, files) => (err ? cb(err.errno || unixCodes.ENOENT) : cb(0, files)))),
+    truncate: (pathItems, size, cb) => getRealPath(pathItems, cb, (realPath) => fs.truncate(realPath, size, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    readlink: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.readlink(realPath, (err, link) => (err ? cb(err.errno || unixCodes.ENOENT) : cb(null, link)))),
+    chown: (pathItems, uid, gid, cb) => getRealPath(pathItems, cb, (realPath) => fs.chown(realPath, uid, gid, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    chmod: (pathItems, mode, cb) => getRealPath(pathItems, cb, (realPath) => fs.chmod(realPath, mode, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
     read: (pathItems, offset, length, cb) =>
       getRealPath(pathItems, cb, (realPath) => {
         const buffer = Buffer.alloc(length)
@@ -246,20 +241,16 @@ exports.real = function (basePath) {
           }
         })
       ),
-    utimens: (pathItems, atime, mtime, cb) =>
-      getRealPath(pathItems, cb, (realPath) => fs.utimes(realPath, atime, mtime, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    utimens: (pathItems, atime, mtime, cb) => getRealPath(pathItems, cb, (realPath) => fs.utimes(realPath, atime, mtime, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
     unlink: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.unlink(realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
     rename: (pathItems, destPath, cb) =>
       getRealPath(pathItems, cb, (realPath) => {
         fs.rename(realPath, destPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))
       }),
-    link: (pathItems, dest, cb) =>
-      getRealPath(pathItems, cb, (realPath) => fs.link(dest, realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
-    symlink: (pathItems, dest, cb) =>
-      getRealPath(pathItems, cb, (realPath) => fs.symlink(dest, realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
-    mkdir: (pathItems, mode, cb) =>
-      getRealPath(pathItems, cb, (realPath) => fs.mkdir(realPath, mode, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
-    rmdir: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.rmdir(realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0)))
+    link: (pathItems, dest, cb) => getRealPath(pathItems, cb, (realPath) => fs.link(dest, realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    symlink: (pathItems, dest, cb) => getRealPath(pathItems, cb, (realPath) => fs.symlink(dest, realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    mkdir: (pathItems, mode, cb) => getRealPath(pathItems, cb, (realPath) => fs.mkdir(realPath, mode, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    rmdir: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.rmdir(realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
   }
 }
 
@@ -275,7 +266,7 @@ exports.readOnly = function (other) {
         }
       }),
     readdir: other.readdir,
-    read: other.read
+    read: other.read,
   }
 }
 
@@ -290,19 +281,19 @@ exports.vFile = function (buffer) {
         size: buffer.length,
         mode: 33188,
         uid: uid,
-        gid: gid
+        gid: gid,
       }),
     read: (pathItems, offset, length, cb) => {
       const nb = buffer.slice(offset, offset + length)
       cb(nb.length, nb)
-    }
+    },
   }
 }
 
 exports.vDir = function (entries, entry) {
   const dirOperations = {
     getattr: (pathItems, cb) => cb(0, dirAttributes),
-    readdir: (pathItems, cb) => cb(0, typeof entries === 'function' ? entries() : Object.keys(entries))
+    readdir: (pathItems, cb) => cb(0, typeof entries === 'function' ? entries() : Object.keys(entries)),
   }
   return new Proxy(
     {},
@@ -333,7 +324,7 @@ exports.vDir = function (entries, entry) {
           } else {
             cb(unixCodes.EACCES)
           }
-        }
+        },
     }
   )
 }

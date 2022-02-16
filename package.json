@@ -1,6 +1,6 @@
 {
   "name": "@solvencino/arc",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "arc is a simple file and folder sharer.",
   "main": "index.js",
   "bin": {
