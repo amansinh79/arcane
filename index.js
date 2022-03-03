@@ -14,32 +14,27 @@ if (opts.h || opts.help) {
   \\__,_|_|  \\___|
 
 
-arc is a simple file and folder sharer using hyperswarm.
+arc is a simple file and folder sharer on local network.
 
   Example Usage:
      Server :
          arc -p 8080
      Client :
-         arc -p 3000 -k <key>
+         arc -a <address>
   
   Example Usage (Mount):
        Client :
-         arc -k <key> -m /home/dir/
+         arc -a <address> -m /home/dir/
 
   Example Usage (Repl):
        Client :
-         arc -k <key> -r
+         arc -a <address> -r
 
-Note : You need to provide either key or address on client
-
-  
   Options:
       -p, --port <port>     port to run on [optional]
-      -k, --key <key>       dht key [required on client]
       -m, --mount <path>    mount path for fuse
       -r, --repl            use repl to access files
       -a, --address <addr>  local ip address for mount
-      -l, --local           don't use hyperswarm, to share on local devices
       -w, --allowWrite      when using mount allow client all permissions. default READ-ONLY
       -v, --version         print version
       -h, --help            display help for command
@@ -59,11 +54,10 @@ Note : You need to provide either key or address on client
   opts.key = opts.k || opts.key
   opts.mount = opts.m || opts.mount
   opts.address = opts.a || opts.address
-  opts.local = opts.l || opts.local
   opts.allowWrite = opts.w || opts.allowWrite
   opts.repl = opts.r || opts.repl
 
-  if (opts.key || opts.address) {
+  if (opts.address) {
     require('./client')(opts)
   } else {
     require('./server')(opts)

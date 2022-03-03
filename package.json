@@ -1,6 +1,6 @@
 {
   "name": "@solvencino/arc",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "arc is a simple file and folder sharer.",
   "main": "index.js",
   "bin": {
@@ -19,7 +19,6 @@
   "author": "solvencino",
   "license": "MIT",
   "dependencies": {
-    "@hyperswarm/dht": "^5.0.7",
     "@solvencino/fs-stream": "^1.0.3",
     "agentkeepalive": "^4.2.0",
     "axios": "^0.25.0",

@@ -3,14 +3,12 @@ const urlencode = require('urlencode')
 const fs = require('fs')
 const tar = require('tar-fs')
 const p = require('path')
-const DHT = require('@hyperswarm/dht')
 const pump = require('pump')
 const net = require('net')
 const ip = require('ip')
 const prettyFileIcons = require('pretty-file-icons')
 const httpfs_srv = require('./httpfs-server')
 const path = process.cwd()
-const node = new DHT()
 const app = express()
 const contentDisposition = require('content-disposition')
 const { send } = require('@solvencino/fs-stream')
@@ -126,15 +124,5 @@ module.exports = function ({ port = 3333, local, allowWrite }) {
     console.log(`Server Listening on port ${port}!\n`)
     console.log(`http://localhost:${port}\n`)
     console.log(`Local Address : ${ip.address()}:${port}\n`)
-
-    if (local) return
-
-    const server = node.createServer((socket) => {
-      pump(socket, net.connect(port, 'localhost'), socket)
-    })
-
-    server.listen().then(() => {
-      console.log('DHT Key:', server.address().publicKey.toString('hex'))
-    })
   })
 }

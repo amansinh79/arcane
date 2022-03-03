@@ -1,8 +1,6 @@
 const pump = require('pump')
 const bind = require('bind-easy')
-const DHT = require('@hyperswarm/dht')
 const net = require('net')
-const node = new DHT()
 const { start } = require('repl')
 const { default: axios } = require('axios')
 const chalk = require('chalk')
@@ -10,24 +8,23 @@ const urlencode = require('urlencode')
 const { createWriteStream, existsSync } = require('fs')
 const { extname, join, basename, sep, resolve, dirname } = require('path')
 const { receive } = require('@solvencino/fs-stream')
+const url = require('url')
 
-module.exports = async function ({ key, mount, repl, port = 8080, address }) {
-  if (key) {
-    await new Promise((res, rej) => {
-      const buf = Buffer.from(key, 'hex')
-      bind.tcp(port).then((server) => {
-        server.on('connection', (socket) => {
-          pump(socket, key ? node.connect(buf) : net.connect(`http://${address}`), socket)
-        })
-        console.log(`Listening on port ${port}\n`)
-        console.log(`http://localhost:${port}\n`)
-        res()
+module.exports = async function ({ mount, repl, port = 8080, address }) {
+  address = url.parse(`http://${address}`)
+  await new Promise((res, rej) => {
+    bind.tcp(port).then((server) => {
+      server.on('connection', (socket) => {
+        pump(socket, net.connect({ port: address.port, host: address.hostname }), socket)
       })
+      console.log(`Listening on port ${port}\n`)
+      console.log(`http://localhost:${port}\n`)
+      res()
     })
-  }
+  })
 
   if (mount) {
-    require('./httpfs-client').mount(key ? `http://localhost:${port}/httpfs` : `http://${address}/httpfs`, mount, {}, (err, unmount) => {
+    require('./httpfs-client').mount(address.href + 'httpfs', mount, {}, (err, unmount) => {
       if (err) {
         console.log(err.message)
         process.exit()
@@ -38,7 +35,7 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
   } else if (repl) {
     let pwd = sep
     const client = axios.create({
-      baseURL: key ? `http://localhost:${port}` : `http://${address}`,
+      baseURL: address.href,
       params: {
         raw: true,
       },
@@ -141,7 +138,7 @@ module.exports = async function ({ key, mount, repl, port = 8080, address }) {
     })
 
     replServer.defineCommand('status', () => {
-      console.log(`Connected to ${key ? `${key}\nListening on http://localhost:${port}` : `http://${address}`}`)
+      console.log(`Connected to ${address.href}`)
 
       replServer.displayPrompt()
     })
