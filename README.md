@@ -2,14 +2,14 @@
 
 It is a simple file and folder sharer.
 
-It uses [hyperswarm](https://www.npmjs.com/package/@hyperswarm/dht) for sharing over network.
+It can be used with [hyperport](https://github.com/solvencino/hyperport) for sharing over network.
 
 ## Installation:
 
 ### Prerequisite:
 
 1. [Node.js](https://nodejs.org/)
-2. To mount, configured [fuse-native](https://github.com/fuse-friends/fuse-native)
+2. To mount, [arcane-mount](https://github.com/solvencino/arcane-mount)
 
 ### Install
 
@@ -35,28 +35,27 @@ You can access shared files using 3 ways.
 
 ### Client :
 
-`arc -p 3000 -k <key>`
+`arc -p 3000 -a <address>`
 
 ## Example Usage (Mount):
 
 ### Client :
 
-`arc -k <key> -m /home/dir/`
+`arc -a <address> -m /home/dir/`
 
 ## Example Usage (Repl):
 
 ### Client :
 
-`arc -k <key> -r`
+`arc -a <address> -r`
 
-`Note : You need to provide either key or address on client`
+`Note : You need to provide address on client`
 
 ### Options:
 
 ```
 -p, --port <port> port to run on [optional]
 -k, --key <key> dht key [required on client]
--m, --mount <path> mount path for fuse
 -r, --repl use repl to access files
 -a, --address <addr> local ip address for mount
 -l, --local don't use hyperswarm, to share on local devices
@@ -88,7 +87,7 @@ Repl Commands:
 
 MIT
 
-Files [httpfs-client.js](./httpfs-client.js) and [httpfs-server.js](./httpfs-server.js) are under license MPL 2.0.
+File [httpfs-server.js](./httpfs-server.js) are under license MPL 2.0.
 
-Source for both files :
+Source for file :
 [httpfs](https://github.com/orgs/mozilla/repositories?q=httpfs&type=all&language=&sort=)

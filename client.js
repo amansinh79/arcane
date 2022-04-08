@@ -1,20 +1,20 @@
-const pump = require('pump')
-const bind = require('bind-easy')
-const net = require('net')
-const { start } = require('repl')
-const { default: axios } = require('axios')
-const chalk = require('chalk')
-const urlencode = require('urlencode')
-const { createWriteStream, existsSync } = require('fs')
-const { extname, join, basename, sep, resolve, dirname } = require('path')
-const { receive } = require('@solvencino/fs-stream')
-const url = require('url')
+const pump = require("pump")
+const bind = require("bind-easy")
+const net = require("net")
+const { start } = require("repl")
+const { default: axios } = require("axios")
+const chalk = require("chalk")
+const urlencode = require("urlencode")
+const { createWriteStream, existsSync } = require("fs")
+const { extname, join, basename, sep, resolve, dirname } = require("path")
+const { receive } = require("@solvencino/fs-stream")
+const url = require("url")
 
-module.exports = async function ({ mount, repl, port = 8080, address }) {
+module.exports = async function ({ repl, port = 8080, address }) {
   address = url.parse(`http://${address}`)
   await new Promise((res, rej) => {
     bind.tcp(port).then((server) => {
-      server.on('connection', (socket) => {
+      server.on("connection", (socket) => {
         pump(socket, net.connect({ port: address.port, host: address.hostname }), socket)
       })
       console.log(`Listening on port ${port}\n`)
@@ -23,16 +23,7 @@ module.exports = async function ({ mount, repl, port = 8080, address }) {
     })
   })
 
-  if (mount) {
-    require('./httpfs-client').mount(address.href + 'httpfs', mount, {}, (err, unmount) => {
-      if (err) {
-        console.log(err.message)
-        process.exit()
-      }
-      console.log('Mounted at ' + mount)
-      process.on('SIGINT', unmount)
-    })
-  } else if (repl) {
+  if (repl) {
     let pwd = sep
     const client = axios.create({
       baseURL: address.href,
@@ -48,28 +39,28 @@ module.exports = async function ({ mount, repl, port = 8080, address }) {
       terminal: true,
     })
 
-    replServer.on('exit', () => {
-      process.kill(process.pid, 'SIGINT')
+    replServer.on("exit", () => {
+      process.kill(process.pid, "SIGINT")
     })
 
-    replServer.defineCommand('ls', async (cmd) => {
-      const res = await client.get('/' + urlencode(join(pwd, cmd)))
+    replServer.defineCommand("ls", async (cmd) => {
+      const res = await client.get("/" + urlencode(join(pwd, cmd)))
 
       if (res.status === 200) {
         const files = res.data
           .map((entry) => {
             return entry.isDir ? chalk.bold.blueBright(entry.name) : entry.name
           })
-          .join('\n')
+          .join("\n")
         console.log(files)
       } else {
-        console.log('Invalid Path')
+        console.log("Invalid Path")
       }
       replServer.displayPrompt()
     })
 
-    replServer.defineCommand('cd', async (text) => {
-      const res = await client.get('/' + urlencode(join(pwd, text)), {
+    replServer.defineCommand("cd", async (text) => {
+      const res = await client.get("/" + urlencode(join(pwd, text)), {
         params: {
           check: true,
         },
@@ -78,52 +69,52 @@ module.exports = async function ({ mount, repl, port = 8080, address }) {
         pwd = join(pwd, text)
         replServer.setPrompt(chalk.bold.blueBright(`arc : ${pwd} > `))
       } else {
-        console.log('Invalid Path!')
+        console.log("Invalid Path!")
       }
       replServer.displayPrompt()
     })
 
-    replServer.defineCommand('clear', () => {
-      process.stdout.write('\033c')
+    replServer.defineCommand("clear", () => {
+      process.stdout.write("\033c")
       replServer.displayPrompt()
     })
 
-    replServer.defineCommand('cat', async (text) => {
-      const res = await client.get('/download/' + urlencode(join(pwd, text)), {
-        responseType: 'stream',
+    replServer.defineCommand("cat", async (text) => {
+      const res = await client.get("/download/" + urlencode(join(pwd, text)), {
+        responseType: "stream",
         params: {
           raw: true,
         },
       })
 
       if (res.status === 200) {
-        res.data.on('end', () => {
-          process.stdout.write('\n')
+        res.data.on("end", () => {
+          process.stdout.write("\n")
           replServer.displayPrompt(true)
         })
         pump(res.data, process.stdout)
       } else {
-        console.log('File not found!')
+        console.log("File not found!")
         replServer.displayPrompt()
       }
     })
 
-    replServer.defineCommand('cp', async (cmd) => {
-      let [src, dest] = cmd.split(' ')
+    replServer.defineCommand("cp", async (cmd) => {
+      let [src, dest] = cmd.split(" ")
       dest = resolve(dest)
       if (!existsSync(dirname(dest))) {
-        console.log('Invalid Destination!')
+        console.log("Invalid Destination!")
         replServer.displayPrompt()
         return
       }
-      const res = await client.get('/download/' + urlencode(join(pwd, src)), {
-        responseType: 'stream',
+      const res = await client.get("/download/" + urlencode(join(pwd, src)), {
+        responseType: "stream",
       })
       if (res.status === 200) {
-        res.data.on('end', () => {
+        res.data.on("end", () => {
           replServer.displayPrompt()
         })
-        if (res.headers['x-isdir']) {
+        if (res.headers["x-isdir"]) {
           pump(res.data, receive(dest))
         } else {
           if (!extname(dest)) {
@@ -132,18 +123,18 @@ module.exports = async function ({ mount, repl, port = 8080, address }) {
           pump(res.data, createWriteStream(dest))
         }
       } else {
-        console.log('Invalid source!')
+        console.log("Invalid source!")
         replServer.displayPrompt()
       }
     })
 
-    replServer.defineCommand('status', () => {
+    replServer.defineCommand("status", () => {
       console.log(`Connected to ${address.href}`)
 
       replServer.displayPrompt()
     })
 
-    replServer.defineCommand('help', () => {
+    replServer.defineCommand("help", () => {
       console.log(
         `.status                                print status
 .ls                                    print contents of current directory 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const minimist = require('minimist')
+const minimist = require("minimist")
 
 const args = process.argv.splice(2)
 
@@ -24,7 +24,7 @@ arc is a simple file and folder sharer on local network.
   
   Example Usage (Mount):
        Client :
-         arc -a <address> -m /home/dir/
+         arc-mnt -a <address> -m /home/dir/
 
   Example Usage (Repl):
        Client :
@@ -32,7 +32,6 @@ arc is a simple file and folder sharer on local network.
 
   Options:
       -p, --port <port>     port to run on [optional]
-      -m, --mount <path>    mount path for fuse
       -r, --repl            use repl to access files
       -a, --address <addr>  local ip address for mount
       -w, --allowWrite      when using mount allow client all permissions. default READ-ONLY
@@ -48,18 +47,17 @@ arc is a simple file and folder sharer on local network.
       .exit                                  exit repl
   `)
 } else if (opts.v || opts.version) {
-  console.log('arc', require('./package.json').version)
+  console.log("arc", require("./package.json").version)
 } else {
   opts.port = opts.p || opts.port
   opts.key = opts.k || opts.key
-  opts.mount = opts.m || opts.mount
   opts.address = opts.a || opts.address
   opts.allowWrite = opts.w || opts.allowWrite
   opts.repl = opts.r || opts.repl
 
   if (opts.address) {
-    require('./client')(opts)
+    require("./client")(opts)
   } else {
-    require('./server')(opts)
+    require("./server")(opts)
   }
 }

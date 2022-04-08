@@ -1,6 +1,6 @@
-const fs = require('fs')
-const path = require('path')
-const { deserialize, serialize } = require('v8')
+const fs = require("fs")
+const path = require("path")
+const { deserialize, serialize } = require("v8")
 
 const argCount = {
   getattr: 0,
@@ -151,7 +151,7 @@ const unixCodes = {
 const uid = process.getuid ? process.getuid() : 0
 const gid = process.getgid ? process.getgid() : 0
 const stdDate = new Date()
-const selfReadWriteMask = parseInt('600', 8)
+const selfReadWriteMask = parseInt("600", 8)
 const dirAttributes = {
   mtime: stdDate,
   atime: stdDate,
@@ -193,15 +193,20 @@ exports.real = function (basePath) {
               })
         )
       ),
-    readdir: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.readdir(realPath, (err, files) => (err ? cb(err.errno || unixCodes.ENOENT) : cb(0, files)))),
-    truncate: (pathItems, size, cb) => getRealPath(pathItems, cb, (realPath) => fs.truncate(realPath, size, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
-    readlink: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.readlink(realPath, (err, link) => (err ? cb(err.errno || unixCodes.ENOENT) : cb(null, link)))),
-    chown: (pathItems, uid, gid, cb) => getRealPath(pathItems, cb, (realPath) => fs.chown(realPath, uid, gid, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
-    chmod: (pathItems, mode, cb) => getRealPath(pathItems, cb, (realPath) => fs.chmod(realPath, mode, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    readdir: (pathItems, cb) =>
+      getRealPath(pathItems, cb, (realPath) => fs.readdir(realPath, (err, files) => (err ? cb(err.errno || unixCodes.ENOENT) : cb(0, files)))),
+    truncate: (pathItems, size, cb) =>
+      getRealPath(pathItems, cb, (realPath) => fs.truncate(realPath, size, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    readlink: (pathItems, cb) =>
+      getRealPath(pathItems, cb, (realPath) => fs.readlink(realPath, (err, link) => (err ? cb(err.errno || unixCodes.ENOENT) : cb(null, link)))),
+    chown: (pathItems, uid, gid, cb) =>
+      getRealPath(pathItems, cb, (realPath) => fs.chown(realPath, uid, gid, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    chmod: (pathItems, mode, cb) =>
+      getRealPath(pathItems, cb, (realPath) => fs.chmod(realPath, mode, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
     read: (pathItems, offset, length, cb) =>
       getRealPath(pathItems, cb, (realPath) => {
         const buffer = Buffer.alloc(length)
-        fs.open(realPath, 'r', (err, fd) => {
+        fs.open(realPath, "r", (err, fd) => {
           if (err) {
             cb(err.errno || unixCodes.ENOENT)
           } else {
@@ -217,7 +222,7 @@ exports.real = function (basePath) {
       }),
     write: (pathItems, buffer, offset, cb) =>
       getRealPath(pathItems, cb, (realPath) => {
-        fs.open(realPath, 'a', (err, fd) => {
+        fs.open(realPath, "a", (err, fd) => {
           if (err) {
             cb(err.errno || unixCodes.ENOENT)
           } else {
@@ -233,7 +238,7 @@ exports.real = function (basePath) {
       }),
     create: (pathItems, mode, cb) =>
       getRealPath(pathItems, cb, (realPath) =>
-        fs.open(realPath, 'w', mode | selfReadWriteMask, (err, fd) => {
+        fs.open(realPath, "w", mode | selfReadWriteMask, (err, fd) => {
           if (err) {
             cb(err.errno || unixCodes.ENOENT)
           } else {
@@ -241,15 +246,19 @@ exports.real = function (basePath) {
           }
         })
       ),
-    utimens: (pathItems, atime, mtime, cb) => getRealPath(pathItems, cb, (realPath) => fs.utimes(realPath, atime, mtime, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    utimens: (pathItems, atime, mtime, cb) =>
+      getRealPath(pathItems, cb, (realPath) => fs.utimes(realPath, atime, mtime, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
     unlink: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.unlink(realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
     rename: (pathItems, destPath, cb) =>
       getRealPath(pathItems, cb, (realPath) => {
         fs.rename(realPath, destPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))
       }),
-    link: (pathItems, dest, cb) => getRealPath(pathItems, cb, (realPath) => fs.link(dest, realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
-    symlink: (pathItems, dest, cb) => getRealPath(pathItems, cb, (realPath) => fs.symlink(dest, realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
-    mkdir: (pathItems, mode, cb) => getRealPath(pathItems, cb, (realPath) => fs.mkdir(realPath, mode, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    link: (pathItems, dest, cb) =>
+      getRealPath(pathItems, cb, (realPath) => fs.link(dest, realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    symlink: (pathItems, dest, cb) =>
+      getRealPath(pathItems, cb, (realPath) => fs.symlink(dest, realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
+    mkdir: (pathItems, mode, cb) =>
+      getRealPath(pathItems, cb, (realPath) => fs.mkdir(realPath, mode, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
     rmdir: (pathItems, cb) => getRealPath(pathItems, cb, (realPath) => fs.rmdir(realPath, (err) => cb(err ? err.errno || unixCodes.ENOENT : 0))),
   }
 }
@@ -293,7 +302,7 @@ exports.vFile = function (buffer) {
 exports.vDir = function (entries, entry) {
   const dirOperations = {
     getattr: (pathItems, cb) => cb(0, dirAttributes),
-    readdir: (pathItems, cb) => cb(0, typeof entries === 'function' ? entries() : Object.keys(entries)),
+    readdir: (pathItems, cb) => cb(0, typeof entries === "function" ? entries() : Object.keys(entries)),
   }
   return new Proxy(
     {},
@@ -303,14 +312,14 @@ exports.vDir = function (entries, entry) {
           const args = Array.from(arguments)
           const pathItems = args[0]
           const cb = args[args.length - 1]
-          if (!cb || typeof cb !== 'function') {
+          if (!cb || typeof cb !== "function") {
             return
           }
           let operations = dirOperations
           if (pathItems.length > 0) {
             const item = pathItems.shift()
-            operations = typeof entry === 'function' ? entry(item) : entries[item]
-            if (typeof operations === 'function') {
+            operations = typeof entry === "function" ? entry(item) : entries[item]
+            if (typeof operations === "function") {
               operations = operations()
             }
           }
@@ -333,8 +342,8 @@ const isBuffer = (obj) => obj != null && obj.constructor != null && obj.construc
 
 exports.serve = function (root, call, cb, debug) {
   const debugOps = {}
-  if (typeof debug === 'string') {
-    for (const op of debug.toLowerCase().split(',')) {
+  if (typeof debug === "string") {
+    for (const op of debug.toLowerCase().split(",")) {
       debugOps[op] = true
     }
   }
@@ -357,11 +366,11 @@ exports.serve = function (root, call, cb, debug) {
       const shiftItems = () =>
         call.args
           .shift()
-          .split('/')
+          .split("/")
           .filter((v) => v.length > 0)
       const pathItems = shiftItems()
       if (call.args.length === argCount[call.operation]) {
-        if (call.operation === 'rename') {
+        if (call.operation === "rename") {
           if (call.args.length > 0) {
             const destItems = shiftItems()
             const destpath = root.destpath
