@@ -14,48 +14,31 @@ if (opts.h || opts.help) {
   \\__,_|_|  \\___|
 
 
-arc is a simple file and folder sharer on local network.
+  It is a simple folder mounter over network.
 
   Example Usage:
      Server :
          arc -p 8080
      Client :
-         arc -a <address>
-  
-  Example Usage (Mount):
-       Client :
-         arc-mnt -a <address> -m /home/dir/
-
-  Example Usage (Repl):
-       Client :
-         arc -a <address> -r
+         arc-mnt -k <key> -m /home/dir/
 
   Options:
       -p, --port <port>     port to run on [optional]
-      -r, --repl            use repl to access files
-      -a, --address <addr>  local ip address for mount
+      -k, --key <key>       dht key [required on client]
+      -m, --mount <path>    path to mount 
       -w, --allowWrite      when using mount allow client all permissions. default READ-ONLY
       -v, --version         print version
       -h, --help            display help for command
-       
-  Repl Commands:
-      .status                                print status
-      .ls                                    print contents of current directory 
-      .cd <path>                             chagne directory
-      .cp <path> <file system path>          copy files and directory 
-      .cat <filename>                        print contents of file
-      .exit                                  exit repl
   `)
 } else if (opts.v || opts.version) {
   console.log("arc", require("./package.json").version)
 } else {
   opts.port = opts.p || opts.port
   opts.key = opts.k || opts.key
-  opts.address = opts.a || opts.address
   opts.allowWrite = opts.w || opts.allowWrite
-  opts.repl = opts.r || opts.repl
+  opts.mount = opts.m || opts.mount
 
-  if (opts.address) {
+  if (opts.key) {
     require("./client")(opts)
   } else {
     require("./server")(opts)

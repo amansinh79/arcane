@@ -1,7 +1,7 @@
 {
   "name": "@solvencino/arc",
-  "version": "1.0.10",
-  "description": "arc is a simple file and folder sharer.",
+  "version": "1.0.11",
+  "description": "It is a simple folder mounter over network.",
   "main": "index.js",
   "bin": {
     "arc": "index.js"
@@ -19,21 +19,13 @@
   "author": "solvencino",
   "license": "MIT",
   "dependencies": {
-    "@solvencino/fs-stream": "^1.0.3",
+    "@hyperswarm/dht": "^5.0.25",
     "agentkeepalive": "^4.2.0",
-    "axios": "^0.25.0",
     "bind-easy": "^1.0.2",
-    "chalk": "^4.1.2",
-    "content-disposition": "^0.5.4",
-    "express": "^4.17.1",
-    "ip": "^1.1.5",
+    "fuse-native": "^2.2.6",
     "matcher": "^4.0.0",
     "minimist": "^1.2.6",
-    "pretty-file-icons": "^2.2.1",
-    "pug": "^3.0.2",
-    "pump": "^3.0.0",
-    "tar-fs": "^2.1.1",
-    "urlencode": "^1.1.0"
+    "pump": "^3.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.14"
